@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-neutral-100 text-neutral-900 antialiased;
+}
+
+/* ------------------------------------------------------------------ */
+/*  The printable A4 invoice sheet                                     */
+/* ------------------------------------------------------------------ */
+.sheet {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 12mm 15mm 16mm;
+  background: #fff;
+  color: #1a1a1a;
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.35;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.sheet .serif {
+  font-family: "Times New Roman", Times, Georgia, serif;
+}
+
+.sheet table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.sheet-footer {
+  margin-top: auto;
+  padding-top: 3mm;
+  border-top: 0.5pt solid #bfbfbf;
+  text-align: center;
+  font-size: 7.5pt;
+  color: #666;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Print                                                              */
+/* ------------------------------------------------------------------ */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-root {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    min-height: 0; /* avoid an accidental blank second page */
+    padding-bottom: 22mm; /* room for the fixed footer */
+  }
+  .sheet-footer {
+    position: fixed;
+    left: 15mm;
+    right: 15mm;
+    bottom: 8mm;
+    margin-top: 0;
+  }
+  tr,
+  .avoid-break {
+    break-inside: avoid;
+  }
+}
