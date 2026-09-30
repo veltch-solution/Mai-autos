@@ -9,6 +9,10 @@ import { useState } from "react";
 const links = [
   { href: "/", label: "Invoices" },
   { href: "/inventory", label: "Inventory" },
+  { href: "/sales", label: "Sales" },
+  { href: "/customers", label: "Customers" },
+  { href: "/service", label: "After-sales" },
+  { href: "/reports", label: "Reports" },
   { href: "/invoices/new", label: "New Invoice" },
   { href: "/settings", label: "Settings" },
 ];
