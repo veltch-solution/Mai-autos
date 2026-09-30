@@ -116,3 +116,7 @@ public/logo.png                 Your logo (replace this file to change it)
 | App shows "Demo mode" on Vercel | The two environment variables are missing — add them and **redeploy** |
 | Header/footer text (URL, date) on the printout | In the print dialog → *More settings* → untick *Headers and footers* |
 | Black header prints white | In the print dialog enable *Background graphics* |
+
+## Vehicle inventory
+
+The Inventory page is the first dealership-management module. It supports new, locally used, and foreign-used stock; vehicle identity and specifications; VIN/chassis and engine numbers; stock location; and statuses including in stock, reserved, sold, in transit, and in preparation. Demo mode stores vehicles in this browser. For team use, run the current `supabase/schema.sql` to create the `vehicles` table and its authenticated-staff RLS policy.

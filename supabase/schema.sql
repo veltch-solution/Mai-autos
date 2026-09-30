@@ -53,3 +53,34 @@ create policy "staff can manage invoices"
 -- Nothing for anonymous visitors
 revoke all on public.settings from anon;
 revoke all on public.invoices from anon;
+
+-- Vehicle stock records (the foundation for acquisition, sales and trade-ins)
+create table if not exists public.vehicles (
+  id             uuid primary key default gen_random_uuid(),
+  stock_no       text unique,
+  category       text not null default 'foreign_used' check (category in ('new','locally_used','foreign_used')),
+  status         text not null default 'in_stock' check (status in ('in_stock','reserved','sold','in_transit','preparation')),
+  year           text,
+  make           text not null,
+  model          text not null,
+  trim           text,
+  vin            text unique,
+  engine_number  text,
+  mileage        text,
+  condition      text,
+  colour         text,
+  transmission   text,
+  fuel_type      text,
+  location       text,
+  notes          text,
+  created_by     uuid default auth.uid() references auth.users (id) on delete set null,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+create index if not exists vehicles_status_idx on public.vehicles (status);
+create index if not exists vehicles_make_model_idx on public.vehicles (make, model);
+alter table public.vehicles enable row level security;
+drop policy if exists "staff can manage vehicles" on public.vehicles;
+create policy "staff can manage vehicles" on public.vehicles
+  for all to authenticated using (true) with check (true);
+revoke all on public.vehicles from anon;

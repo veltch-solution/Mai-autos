@@ -5,10 +5,12 @@
 import { computeTotals, vehicleLabel } from "../calc";
 import { withDefaults } from "../defaults";
 import type { Invoice, InvoiceSummary, Settings } from "../types";
+import type { StockVehicle } from "../stock";
 import type { InvoiceStore } from "./types";
 
 const K_INVOICES = "mai-autos:invoices";
 const K_SETTINGS = "mai-autos:settings";
+const K_VEHICLES = "mai-autos:vehicles";
 
 function readAll(): Invoice[] {
   if (typeof window === "undefined") return [];
@@ -76,5 +78,26 @@ export const localStore: InvoiceStore = {
 
   async saveSettings(settings) {
     window.localStorage.setItem(K_SETTINGS, JSON.stringify(settings));
+  },
+
+  async listVehicles() {
+    if (typeof window === "undefined") return [];
+    try { return (JSON.parse(window.localStorage.getItem(K_VEHICLES) || "[]") as StockVehicle[]).sort((a,b) => b.updatedAt.localeCompare(a.updatedAt)); }
+    catch { return []; }
+  },
+
+  async saveVehicle(vehicle) {
+    const list = await this.listVehicles();
+    const now = new Date().toISOString();
+    const old = list.find(v => v.id === vehicle.id);
+    const next = { ...vehicle, createdAt: old?.createdAt || vehicle.createdAt || now, updatedAt: now };
+    const updated = old ? list.map(v => v.id === next.id ? next : v) : [next, ...list];
+    window.localStorage.setItem(K_VEHICLES, JSON.stringify(updated));
+    return next;
+  },
+
+  async removeVehicle(id) {
+    const list = await this.listVehicles();
+    window.localStorage.setItem(K_VEHICLES, JSON.stringify(list.filter(v => v.id !== id)));
   },
 };

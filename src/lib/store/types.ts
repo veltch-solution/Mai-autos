@@ -1,4 +1,5 @@
 import type { Invoice, InvoiceSummary, Settings } from "../types";
+import type { StockVehicle } from "../stock";
 
 export interface InvoiceStore {
   readonly kind: "supabase" | "local";
@@ -8,4 +9,7 @@ export interface InvoiceStore {
   remove(id: string): Promise<void>;
   getSettings(): Promise<Settings>;
   saveSettings(settings: Settings): Promise<void>;
+  listVehicles(): Promise<StockVehicle[]>;
+  saveVehicle(vehicle: StockVehicle): Promise<StockVehicle>;
+  removeVehicle(id: string): Promise<void>;
 }

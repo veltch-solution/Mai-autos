@@ -7,6 +7,7 @@ import { computeTotals, vehicleLabel } from "../calc";
 import { withDefaults } from "../defaults";
 import { getSupabase } from "../supabase/client";
 import type { Currency, Invoice, InvoiceSummary, Settings } from "../types";
+import type { StockVehicle } from "../stock";
 import type { InvoiceStore } from "./types";
 
 interface InvoiceRow {
@@ -110,6 +111,38 @@ export const supabaseStore: InvoiceStore = {
     const { error } = await getSupabase()
       .from("settings")
       .upsert({ id: 1, data: settings, updated_at: new Date().toISOString() }, { onConflict: "id" });
+    if (error) throw new Error(friendly(error.message));
+  },
+
+  async listVehicles() {
+    const { data, error } = await getSupabase().from("vehicles").select("*").order("updated_at", { ascending: false });
+    if (error) throw new Error(friendly(error.message));
+    return (data || []).map((r: Record<string, unknown>) => ({
+      id: String(r.id), stockNo: String(r.stock_no || ""), category: r.category as StockVehicle["category"],
+      status: r.status as StockVehicle["status"], year: String(r.year || ""), make: String(r.make || ""),
+      model: String(r.model || ""), trim: String(r.trim || ""), vin: String(r.vin || ""),
+      engineNumber: String(r.engine_number || ""), mileage: String(r.mileage || ""), condition: String(r.condition || ""),
+      colour: String(r.colour || ""), transmission: String(r.transmission || ""), fuelType: String(r.fuel_type || ""),
+      location: String(r.location || ""), notes: String(r.notes || ""), createdAt: String(r.created_at || ""), updatedAt: String(r.updated_at || ""),
+    } as StockVehicle));
+  },
+
+  async saveVehicle(vehicle) {
+    const now = new Date().toISOString();
+    const row = {
+      id: vehicle.id, stock_no: vehicle.stockNo || null, category: vehicle.category, status: vehicle.status,
+      year: vehicle.year || null, make: vehicle.make, model: vehicle.model, trim: vehicle.trim || null,
+      vin: vehicle.vin || null, engine_number: vehicle.engineNumber || null, mileage: vehicle.mileage || null,
+      condition: vehicle.condition || null, colour: vehicle.colour || null, transmission: vehicle.transmission || null,
+      fuel_type: vehicle.fuelType || null, location: vehicle.location || null, notes: vehicle.notes || null, updated_at: now,
+    };
+    const { data, error } = await getSupabase().from("vehicles").upsert(row, { onConflict: "id" }).select("created_at").single();
+    if (error) throw new Error(friendly(error.message));
+    return { ...vehicle, createdAt: String(data.created_at), updatedAt: now };
+  },
+
+  async removeVehicle(id) {
+    const { error } = await getSupabase().from("vehicles").delete().eq("id", id);
     if (error) throw new Error(friendly(error.message));
   },
 };
